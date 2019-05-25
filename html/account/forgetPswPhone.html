@@ -98,6 +98,7 @@ function getVerifyCode(){
 // 　　　　 });
 
       var json_phone={"phone_number": phone};
+      var setTime;
       $.ajax({
           url:'http://47.105.160.217:80/api/login/sendIDCode/',
           type:'POST',
@@ -111,9 +112,27 @@ function getVerifyCode(){
             　　　　　　duration: '1300',
             　　　　　　localtion: 'middle'
           　　　　 });
+
+                  var time=20;
+                  $("#time").show();
+                  $("#getIDButton").hide();
+                  $("#time").text(time+'s后再次获取');
+
+                setTime=setInterval(function(){
+                    if(time<=1){
+                        clearInterval(setTime);
+                        $("#time").hide();
+                        $("#getIDButton").show();
+                        return;
+                    }
+                    time--;
+                    $("#time").show();
+                    $("#getIDButton").hide();
+                    $("#time").text(time+'s后再次获取');
+                },1000);
               }
             }
-              alert(JSON.stringify(ret))
+              //alert(JSON.stringify(ret))
           },
           error:function (ret) {
               alert(JSON.stringify(ret))
@@ -145,23 +164,40 @@ function getVerifyCode(){
           return ;
       }
 
-    var json_verified={"phone_number":phone_number,"IDCode":"6575","password":""};
+    var json_verified={"phone_number":phone_number,"IDCode":verifyCode,"password":""};
     $.ajax({
         url:'http://47.105.160.217:80/api/login/forgetPassword/',
         type:'POST',
         data:JSON.stringify(json_verified),
         dataType:'json',
         success:function (ret) {
-          if(ret.status==200){
-            if (ret.message=="SUCCESS") {
+          if(ret.data.error){
+            if (ret.data.error=="Invalid id code") {
+                api.toast({
+          　　　　　　msg:'验证码错误',
+          　　　　　　duration: '1300',
+          　　　　　　localtion: 'middle'
+        　　　　 });
+            }
+        }else if (ret.data.success) {
+            if (ret.success=="success") {
                 api.toast({
           　　　　　　msg:'获取验证码校验成功',
           　　　　　　duration: '1300',
           　　　　　　localtion: 'middle'
         　　　　 });
+
+                api.openWin({
+                  name: 'reset',
+                  url: './forgetPswSet.html',
+                  pageParam: {
+                      phone: phone_number,
+                      IDCode:verifyCode
+                  }
+                });
             }
-          }
-            alert(JSON.stringify(ret));
+        }
+            //alert(JSON.stringify(ret));
             //api.closeWin();
             api.addEventListener({
                 name:'viewdisappear'
@@ -171,14 +207,7 @@ function getVerifyCode(){
                 });
             });
 
-            api.openWin({
-              name: 'reset',
-              url: './forgetPswSet.html',
-              pageParam: {
-                  phone: phone_number,
-                  IDCode:verifyCode
-              }
-            });
+
         },
         error:function (ret) {
             alert(JSON.stringify(ret))
@@ -192,7 +221,7 @@ function getVerifyCode(){
 
 <body>
   <header class="aui-bar aui-bar-nav"style="background-color: #ffffff; height: 20pt" id="aui-header">
-      <a class="aui-btn aui-pull-left" tapmode onclick="closeWin()">
+      <a class="aui-btn aui-pull-left" tapmode onclick="api.closeWin();">
           <span class="aui-iconfont aui-icon-left" style="color: #000000"></span>
       </a>
       <div class="aui-title" style="background-color: #ffffff;color: #000000;">找回密码</div>
@@ -209,7 +238,8 @@ function getVerifyCode(){
 
       <p class="aui-code-line ">
           <input type="number"  name="phone"  id="phone" class="aui-code-line-input " placeholder="请输入手机号" value="">
-          <span style="position: absolute; top:20%; right:30px; color:blue;" onclick="getVerifyCode()" > 获取验证码 </span>
+          <span style="position: absolute; top:20%; right:30px; color:blue;" onclick="getVerifyCode()" id="getIDButton"> 获取验证码 </span>
+          <span style="position: absolute; top:20%; right:30px; color:blue;display:none" onclick="getVerifyCode()" id="time" > 60 </span>
       </p>
 
       <p class="aui-code-line ">

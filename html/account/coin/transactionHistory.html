@@ -111,7 +111,7 @@ function getData(){
 
             //$api.text($api.byId('user_nickname'), ret.data.user_nickname);
             var _data=ret.data;
-            alert(JSON.stringify(_data));
+            //alert(JSON.stringify(_data));
             // _data= [{
             //           "month": "1",
             //           "input": "10.00",
@@ -329,16 +329,16 @@ function closeWin(){
 
         <div class="aui-card-list-header">
             <div >
-                <font style="font-size:20px">本月</font>
-                <font style="color:red">{{= index }}</font>&nbsp;&nbsp;
-                <font>收入10元</font>
+                <font style="font-size:20px">月份：{{= item.log_date }}</font>
+
+                <font>收入<font style="color:red">{{= item.total_income }}</font>&nbsp;&nbsp;元</font>
             </div>
         </div>
 
         <div class="aui-card-list-content">
             <ul class="aui-list aui-media-list" style="border-top:0px">
 
-                 {{~it[index].H:item:j}}
+                 {{~it[index].transaction_data:item:j}}
 
                  <li class="aui-list-item aui-list-item-middle">
                      <div class="aui-media-list-item-inner">

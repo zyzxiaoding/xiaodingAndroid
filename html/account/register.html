@@ -74,27 +74,55 @@
 <script type="text/javascript" src="../../script/api.js"></script>
 
 <script>
+apiready = function() {
+
+    ExitApp();
+
+}
+function ExitApp() {
+    var ci = 0;
+    var time1, time2;
+    api.addEventListener({
+        name : 'keyback'
+    },function(ret, err) {
+        if (ci == 0) {
+        time1 = new Date().getTime();
+        ci = 1;
+
+         api.toast({msg:'再按一次返回键退出'});
+
+    } else if (ci == 1) {
+        time2 = new Date().getTime();
+        if (time2 - time1 < 3000) {
+            api.closeWidget({
+            id : api.appId,
+            retData : {
+                name : 'closeWidget'
+                },
+            silent : true
+            });
+        } else {
+            ci = 0;
+         api.toast({msg:'再按一次返回键退出'});
+        }
+    }
+    });
+}
+
     function getVerifyCode(){
         var phone = $api.val($api.byId('phone'));
-
-
 
         var phoneReg=/^[1][3,4,5,7,8][0-9]{9}$/;
 
           if (!phoneReg.test(phone)) {
-
               api.toast({
         　　　　　　msg:'请输入正确的手机号码',
         　　　　　　duration: '1300',
         　　　　　　localtion: 'middle'
       　　　　 });
-
               return ;
-
           }
-
-
-
+        var setTime;
           var json_phone={"phone_number": phone};
           $.ajax({
               url:'http://47.105.160.217:80/api/login/sendIDCode/',
@@ -109,20 +137,34 @@
                 　　　　　　duration: '1300',
                 　　　　　　localtion: 'middle'
               　　　　 });
+                var time=20;
+                $("#time").show();
+                $("#getIDButton").hide();
+                $("#time").text(time+'s后再次获取');
+
+              setTime=setInterval(function(){
+                  if(time<=1){
+                      clearInterval(setTime);
+                      $("#time").hide();
+                      $("#getIDButton").show();
+                      return;
+                  }
+                  time--;
+                  $("#time").show();
+                  $("#getIDButton").hide();
+                  $("#time").text(time+'s后再次获取');
+              },1000);
+
                   }
                 }
-                  alert(JSON.stringify(ret))
+                  //alert(JSON.stringify(ret))
               },
               error:function (ret) {
                   alert(JSON.stringify(ret))
               },
           })
 
-
           return;
-
-
-
     }
 
     function register(){
@@ -156,7 +198,6 @@
             //     return;
             // }
         }
-
 
         if (!password) {
             api.toast({
@@ -218,7 +259,7 @@
             dataType:'json',
             success:function (ret) {
               api.hideProgress();
-                if(ret.status==200){
+                if(ret.status==403){
                     if(ret.data.error=="User already exists"){
                       api.toast({
               　　　　　　msg:'用户已经存在',
@@ -236,9 +277,19 @@
             　　　　　　});
                       return;
                     }
+
+                    if(ret.data.error=="Invalid password format"){
+                      api.toast({
+              　　　　　　msg:'密码格式错误',
+              　　　　　　duration: '1200',
+              　　　　　　localtion: 'middle'
+            　　　　　　});
+                      return;
+                    }
+
                     if(ret.data.error){
                       api.toast({
-              　　　　　　msg:'错误',
+              　　　　　　msg:ret.data.error,
               　　　　　　duration: '1200',
               　　　　　　localtion: 'middle'
             　　　　　　});
@@ -247,17 +298,6 @@
                 }
 
               if(ret.status==200){
-            //      setTimeout(function() {
-            //         api.openWin({
-            //     　　　　name: 'index',
-            //    　　　　 url: '../../../index.html',
-            //     　　　　bounces: false,
-            //    　　　　 animation:{
-            //         　　　　type: "push",
-            //         　　　　duration:300
-            //     　　　　}
-            // 　　　　});
-            //       }, 1000);
 
                 if (ret.data.user_id) $api.setStorage('user_id', ret.data.user_id);
                 if (ret.data.user_cookie) $api.setStorage('user_cookie', ret.data.user_cookie);
@@ -274,6 +314,12 @@
 
 
               }
+
+              api.openWin({
+                  name:'index',
+                  url:'../main/index.html'
+              })
+
                 alert(JSON.stringify(ret))
             },
             error:function (ret) {
@@ -285,16 +331,17 @@
 
     }
 
+    //打开用户条款页面，应该是一个HTML网页
     function tiaokuan(){
-        api.openWin({
-        　　　　name: 'index',
-        　　　　 url: 'https://passport.baidu.com/static/passpc-account/html/protocal.html',
-        　　　　bounces: false,
-        　　　　 animation:{
-        　　　　type: "push",
-        　　　　duration:300
-        　　　　}
-        　　　　});
+    api.openWin({
+    　　　　name: 'index',
+    　　　　 url: 'https://passport.baidu.com/static/passpc-account/html/protocal.html',
+    　　　　bounces: false,
+    　　　　 animation:{
+    　　　　type: "push",
+    　　　　duration:300
+    　　　　}
+    　　　　});
     }
 
     function closeWin(){
@@ -318,9 +365,9 @@
   </header> -->
 
   <header class="aui-bar aui-bar-nav"style="position: fixed;background-color: #ffffff; height: 45px;box-shadow:inherit" id="aui-header">
-      <a class="aui-btn aui-pull-left"  tapmode onclick="api.closeWin();">
+      <!-- <a class="aui-btn aui-pull-left"  tapmode onclick="api.closeWin();">
           <span class="aui-iconfont aui-icon-left" style="color: #000000;font-weight: bolder;"></span>
-      </a>
+      </a> -->
       <div class="aui-title" style="background-color: #ffffff;color: #000000;font-size:1rem;">注册</div>
       <!-- <div style="float: right;color: #03a9f4;font-size: 0.8rem;" onclick="saveImageClip()">
           <h3 style="color:#6d7cd9;padding-right: 10px;">确定</h3>
@@ -340,7 +387,8 @@
 
         <p class="aui-code-line ">
             <input type="number"  name="phone"  id="phone" class="aui-code-line-input " placeholder="请输入手机号" value="">
-            <span style="position: absolute; top:20%; right:30px; color:blue;color:#6d7cd9" onclick="getVerifyCode()"  > 获取验证码 </span>
+            <span style="position: absolute; top:20%; right:30px; color:blue;color:#6d7cd9" onclick="getVerifyCode()"  id="getIDButton"> 获取验证码 </span>
+            <span style="position: absolute; top:20%; right:30px; color:blue;color:#6d7cd9;display:none" id="time" > 60 </span>
         </p>
 
         <p class="aui-code-line ">
@@ -352,8 +400,12 @@
         <div style="padding-top: 40px;">
             <input class="aui-checkbox" type="checkbox" name="demo1" checked="" style="background-color: #6d7cd9;border: solid 1px #6d7cd9;width: 18px;height: 18px;margin-top:2px"> 同意 <a onclick="tiaokuan()" style="color:#6d7cd9">用户条款 </a>
         </div>
-        <div class="aui-btn-sm" onclick="register()" style="margin: 20px; padding: 10px; border-radius: 20px;background-color:#6d7cd9;color:white">   注册  </div>
 
+
+        <div class="aui-btn-sm" onclick="register()" style="margin: 20px; padding: 10px; border-radius: 20px;background-color:#6d7cd9;color:white">   注册  </div>
+        <div class="login-links">
+            <a href="login.html">已有账号，立即登录</a>
+        </div>
     </div>
 
 

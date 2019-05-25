@@ -73,7 +73,7 @@
 <body>
   <header class="aui-bar aui-bar-nav"style="background-color: #ffffff; height: 20pt" id="aui-header">
       <a class="aui-btn aui-pull-left" tapmode onclick="closeWin()">
-          <span class="aui-iconfont aui-icon-left" style="color: #000000"></span>
+          <!-- <span class="aui-iconfont aui-icon-left" style="color: #000000"></span> -->
       </a>
       <div class="aui-title" style="background-color: #ffffff;color: #000000;">设置新密码</div>
 
@@ -103,11 +103,6 @@
 
 
 
-
-
-
-
-
 </body>
 
 </html>
@@ -119,22 +114,10 @@ apiready=function(){
   console.log("ssssssssssssssssssssss");
 
   setTimeout(function() { // 这里不知道 为什么必须放在setTimeout里面
-                          // 意思就是你 打开一个win的时候不能立马打开另外一个win
+                      // 意思就是你 打开一个win的时候不能立马打开另外一个win
       api.closeWin({
           name: 'phonePsw'
-      });
-      api.toast({
-        msg : '加载失败，请检查网络',
-        duration : 500,
-        location : 'bottom'
-      });
-    }, 1000)
-
-
-  api.closeWin({
-      name: 'phonePsw'
-  });
-  console.log("aaaaaaaaaaaaaaaaaaaa");
+      });}, 1000)
 
 }
 
@@ -151,7 +134,7 @@ apiready=function(){
     var new_pass1 = $api.val($api.byId('new_pass1'));
     var new_pass2 = $api.val($api.byId('new_pass2'));
 
-    var json_verified={"phone_number":phone,"IDCode":"6575","password":new_pass1};
+    var json_verified={"phone_number":phone,"IDCode":IDCode,"password":new_pass1};
     $.ajax({
         url:'http://47.105.160.217:80/api/login/forgetPassword/',
         type:'POST',
