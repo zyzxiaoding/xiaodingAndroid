@@ -96,11 +96,12 @@
                         <div class="aui-list-item-title">更改资料</div>
                     </div>
                 </li>
-              <!-- <li class="aui-list-item" onclick="change_info()">
-                  <div class="aui-list-item-inner" style="padding-right: 0px">
-                      <div class="aui-list-item-title" style="font-size:13px">更改个人信息</div>
+
+              <li class="aui-list-item" onclick="change_portrait()" style="border-radius:6px;padding-left:22px;height:55px ">
+                  <div class="aui-list-item-inner" >
+                      <div class="aui-list-item-title" >更改头像</div>
                   </div>
-              </li>-->
+              </li>
             </ul>
         </div>
 
@@ -706,6 +707,111 @@ funIniGroup();
            pageParam : {
                img_src : img_src,
                type : 2
+           },
+           vScrollBarEnabled : false,
+           hScrollBarEnabled : false,
+           //页面是否弹动 为了下拉刷新使用
+           bounces : false
+       });
+   }
+
+
+
+
+
+
+   function change_portrait(){
+       $api.addCls($api.byId("list2"), 'aui-hide');
+       //photonum=num;
+       api.actionSheet({
+           title: '上传头像图片',
+           cancelTitle: '取消',
+           buttons: ['拍照','从手机相册选择']
+       }, function(ret, err) {
+           if (ret) {
+               getPicture_head(ret.buttonIndex);
+           }
+       });
+   }
+
+   function getPicture_head(sourceType) {
+       if(sourceType==1){ // 拍照
+           api.getPicture({
+               sourceType: 'camera',
+               encodingType: 'png',
+               mediaValue: 'pic',
+               allowEdit: false,
+               quality: 90,
+               saveToPhotoAlbum: true
+           }, function(ret, err) {
+               // 获取拍照数据并处理
+               if (ret) {
+                   console.log(ret);
+                   var imgSrc = ret.data;
+                   var img_url = ret.data;
+                   if (img_url != "") {
+                       openImageClipFrame_head(img_url);
+                   }
+
+                   //saveImg(ret.data,"valueId","imgId");
+                   // if (imgSrc != "") {
+                   //     var ele=$api.dom('#avatar');
+                   //     $api.attr(ele,'src',imgSrc);
+                   // }
+               }
+           });
+       }else if (sourceType == 2) {
+       //手机相册选图片
+           api.getPicture({
+               sourceType : 'library',
+               encodingType : 'png',
+               mediaValue : 'pic',
+               destinationType : 'url',
+               allowEdit : true,
+               quality : 100,
+               preview:true,
+               saveToPhotoAlbum : false
+           }, function(ret, err) {
+           //  alert(JSON.stringify(ret.data));
+               if (ret) {
+                   console.log(ret);
+                   //saveImg(ret.data,"valueId","imgId");
+                   var imgSrc = ret.data;
+                   if (imgSrc != "") {
+                       openImageClipFrame(imgSrc);
+                   }
+               } else {
+                   api.toast({
+                   msg : '图像获取失败',
+                   duration : 3000,
+                   location : 'bottom'
+                   });
+               }
+           });
+
+       }
+   }
+
+   function openImageClipFrame_head(img_src){
+       api.openFrame({
+           name : 'editPhoto',
+           scrollToTop : true,
+           allowEdit : true,
+           url : './myinf/editPhoto.html',
+           rect : {
+               x : 0,
+               y : 0,
+               w : api.winWidth,
+               h : api.winHeight,
+           },
+           animation : {
+               type : "reveal", //动画类型（详见动画类型常量）
+               subType : "from_right", //动画子类型（详见动画子类型常量）
+               duration : 300
+           },
+           pageParam : {
+               img_src : img_src,
+               type:1
            },
            vScrollBarEnabled : false,
            hScrollBarEnabled : false,

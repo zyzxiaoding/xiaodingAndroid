@@ -320,15 +320,7 @@ function login(){
         success:function (ret) {
           api.hideProgress();
 
-          if(ret.status==403){
-              if (ret.data.error=="Invalid password") {
-                  api.toast({
-            　　　　　　msg:'密码不正确',
-            　　　　　　duration: '1300',
-            　　　　　　localtion: 'middle'
-          　　　　 });
-                  return;
-              }
+          if(ret.status==203){
 
               if (ret.data.error=="User not found") {
                   api.toast({
@@ -339,17 +331,16 @@ function login(){
                   return;
               }
 
-
-              if (ret.data.error) {
+          }else if (ret.status==403) {
+              if (ret.data.error=="Invalid password") {
                   api.toast({
-            　　　　　　msg:'错误',
+            　　　　　　msg:'密码不正确',
             　　　　　　duration: '1300',
             　　　　　　localtion: 'middle'
           　　　　 });
                   return;
               }
-          }
-            if(ret.status==200){
+          }else if(ret.status==200){
                 $api.setStorage('cookie', ret.data.cookie);
                 $api.setStorage('user_id', ret.data.user_id);
 
@@ -371,7 +362,14 @@ function login(){
             setTimeout(function() {
               api.closeWin();
             }, 1000);
-          }
+        }else {
+            api.toast({
+      　　　　　　msg:ret.data.error,
+      　　　　　　duration: '1300',
+      　　　　　　localtion: 'middle'
+    　　　　 });
+            return;
+        }
             //alert(JSON.stringify(ret))
         },
         error:function (ret) {
